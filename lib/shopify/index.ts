@@ -3,7 +3,7 @@ import {
   SHOPIFY_GRAPHQL_API_ENDPOINT,
   TAGS
 } from 'lib/constants';
-import { isShopifyError } from 'lib/type-guards';
+import { isStorelfError } from 'lib/type-guards';
 import { ensureStartsWith } from 'lib/utils';
 import {
   revalidateTag,
@@ -102,7 +102,7 @@ export async function shopifyFetch<T>({
       body
     };
   } catch (e) {
-    if (isShopifyError(e)) {
+    if (isStorelfError(e)) {
       throw {
         cause: e.cause?.toString() || 'unknown',
         status: e.status || 500,

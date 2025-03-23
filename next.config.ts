@@ -9,7 +9,7 @@ export default {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'cdn.shopify.com',
+        hostname: 'cdn.storelf.com',
         pathname: '/s/files/**'
       }
     ]
