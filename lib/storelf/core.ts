@@ -1,10 +1,10 @@
-import { getBaseUrl } from 'lib/getBaseUrl';
+import { getBaseUrl } from '../getBaseUrl';
 import { ensureStartsWith } from './utils';
 import { deserializeJSONApi, isJSONApiDocument, ParsedJSONApiData } from './utils/json-api';
 
-const apiDomain = process.env.PRODIGY_API_DOMAIN!;
-const clientDomain = process.env.PRODIGY_CLIENT_DOMAIN!;
-export const apiKey = process.env.PRODIGY_STORE_TOKEN!;
+const apiDomain = process.env.STORELF_API_DOMAIN!;
+const storefrontDomain = process.env.STORELF_STOREFRONT_DOMAIN!;
+export const apiToken = process.env.STORELF_API_TOKEN!;
 const redirectUrl = getBaseUrl();
 
 export function makeApiFullUrl(path: string) {
@@ -16,10 +16,10 @@ export function makeApiFullUrl(path: string) {
 }
 
 export function makeCheckoutUrl(orderId: string, orderToken: string) {
-  return `${clientDomain}/orders/${orderId}/checkout/login?token=${orderToken}&plugin_redirect_url=${redirectUrl}`;
+  return `${storefrontDomain}/orders/${orderId}/checkout/login?token=${orderToken}&plugin_redirect_url=${redirectUrl}`;
 }
 
-export async function prodigyFetch<T>({
+export async function storelfFetch<T>({
   cache = 'force-cache',
   headers,
   endpoint,
@@ -47,7 +47,7 @@ export async function prodigyFetch<T>({
     method,
     headers: {
       'Content-Type': 'application/json',
-      'X-Authorization': apiKey,
+      'X-Authorization': apiToken,
       ...headers
     },
     body: params && !isGet ? JSON.stringify(params) : undefined,
@@ -70,6 +70,6 @@ export async function prodigyFetch<T>({
   } else if (result.status === 404) {
     return {};
   } else {
-    throw new Error('Error calling Prodigy API');
+    throw new Error('Error calling Storelf API');
   }
 }

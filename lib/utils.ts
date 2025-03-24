@@ -21,8 +21,9 @@ export const ensureStartsWith = (stringToCheck: string, startsWith: string) =>
 
 export const validateEnvironmentVariables = () => {
   const requiredEnvironmentVariables = [
+    'STORELF_API_TOKEN',
+    'STORELF_API_DOMAIN',
     'STORELF_STOREFRONT_DOMAIN',
-    'STORELF_STOREFRONT_TOKEN'
   ];
   const missingEnvironmentVariables = [] as string[];
 
@@ -46,6 +47,15 @@ export const validateEnvironmentVariables = () => {
   ) {
     throw new Error(
       'Your `STORELF_STOREFRONT_DOMAIN` environment variable includes brackets (ie. `[` and / or `]`). Your site will not work with them there. Please remove them.'
+    );
+  }
+
+  if (
+      process.env.STORELF_API_DOMAIN?.includes('[') ||
+      process.env.STORELF_API_DOMAIN?.includes(']')
+  ) {
+    throw new Error(
+        'Your `STORELF_API_DOMAIN` environment variable includes brackets (ie. `[` and / or `]`). Your site will not work with them there. Please remove them.'
     );
   }
 };
