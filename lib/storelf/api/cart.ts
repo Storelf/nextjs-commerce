@@ -65,19 +65,35 @@ export async function getCart(cartToken?: string): Promise<Cart | undefined> {
   return reshapeCart(response.data as JSONObject);
 }
 
-// API does not support creating empty cart, cart is created by adding first line item to it
-export function createCart() {}
+export async function createCart(): Promise<Cart> {
+  const response = await storelfFetch({
+    endpoint: '/api/v1/plugin/cart',
+    method: 'PATCH',
+    params: {
+      include: 'line-items'
+    },
+    cache: 'no-store'
+  });
+
+  const cart = reshapeCart(response.data as JSONObject);
+  if (!cart) {
+    throw new Error('Failed to create cart');
+  }
+  return cart;
+}
 
 export async function addToCart(
-  cartToken: string | undefined,
-  lines: { variantId: string; quantity: number }[]
+  lines: { merchandiseId: string; quantity: number }[]
 ): Promise<Cart | undefined> {
+  const cart = await getCart();
+  const cartToken = cart?.id;
+
   const response = await storelfFetch({
     endpoint: '/api/v1/plugin/cart',
     method: 'PATCH',
     params: {
       order_token: cartToken,
-      line_items: lines.map((line) => ({ variant_id: line.variantId, quantity: line.quantity })),
+      line_items: lines.map((line) => ({ variant_id: line.merchandiseId, quantity: line.quantity })),
       include: 'line-items'
     },
     cache: 'no-store'
@@ -86,30 +102,50 @@ export async function addToCart(
   return reshapeCart(response.data as JSONObject);
 }
 
-export async function removeFromCart(cartToken: string, lineId: string): Promise<void> {
-  await storelfFetch({
-    endpoint: `/api/v1/plugin/cart/line_items/${lineId}`,
-    method: 'DELETE',
-    params: {
-      order_token: cartToken
-    },
-    cache: 'no-store'
-  });
+export async function removeFromCart(lineIds: string[]): Promise<void> {
+  const cart = await getCart();
+  const cartToken = cart?.id;
+
+  if (!cartToken) {
+    throw new Error('No cart found');
+  }
+
+  for (const lineId of lineIds) {
+    await storelfFetch({
+      endpoint: `/api/v1/plugin/cart/line_items/${lineId}`,
+      method: 'DELETE',
+      params: {
+        order_token: cartToken
+      },
+      cache: 'no-store'
+    });
+  }
 }
 
 export async function updateCart(
-  cartToken: string,
-  line: { id: string; variantId: string; quantity: number }
-): Promise<void> {
-  await storelfFetch({
-    endpoint: `/api/v1/plugin/cart/line_items/${line.id}`,
-    method: 'PATCH',
-    params: {
-      order_token: cartToken,
-      line_item: { variant_id: line.variantId, quantity: line.quantity }
-    },
-    cache: 'no-store'
-  });
+  lines: { id: string; merchandiseId: string; quantity: number }[]
+): Promise<Cart | undefined> {
+  const cart = await getCart();
+  const cartToken = cart?.id;
+
+  if (!cartToken) {
+    throw new Error('No cart found');
+  }
+
+  for (const line of lines) {
+    await storelfFetch({
+      endpoint: `/api/v1/plugin/cart/line_items/${line.id}`,
+      method: 'PATCH',
+      params: {
+        order_token: cartToken,
+        line_item: { variant_id: line.merchandiseId, quantity: line.quantity },
+        include: 'line-items'
+      },
+      cache: 'no-store'
+    });
+  }
+
+  return getCart(cartToken);
 }
 
 export async function deleteCart(cartToken: string): Promise<void> {

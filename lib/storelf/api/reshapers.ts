@@ -8,9 +8,14 @@ export function reshapeMoney(amount: string, currencyCode = 'USD') {
 }
 
 export function reshapeFeaturedImage(imagePath: unknown, altText: string = ''): Image {
-  if (!(typeof imagePath === 'string')) {
+  if (!(typeof imagePath === 'string') || !imagePath) {
     return imageStub;
   }
-  const url = makeApiFullUrl(imagePath);
-  return { url, altText };
+  try {
+    const url = makeApiFullUrl(imagePath);
+    return { url, altText };
+  } catch (error) {
+    console.warn('Invalid image URL:', imagePath);
+    return imageStub;
+  }
 }

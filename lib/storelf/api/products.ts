@@ -127,14 +127,17 @@ function reshapeProducts(productsResponse: ParsedJSONApiData) {
   return productsResponse.data.map(reshapeProduct).filter(Boolean) as Product[];
 }
 
+//await getProducts({ sortKey, reverse, query: searchValue });
 export async function getProducts({
   query,
   sortKey,
-  collection
+  collection,
+  reverse
 }: {
   query?: string;
   sortKey?: string;
   collection?: string;
+  reverse?: boolean;
 }): Promise<Product[]> {
   const response = await storelfFetch({
     endpoint: '/api/v1/plugin/products',
@@ -151,16 +154,21 @@ export async function getProducts({
 }
 
 export async function getCollectionProducts({
-  collection
+  collection,
+  sortKey = 'price',
+  reverse = false
 }: {
-  collection: 'hidden-homepage-carousel' | 'hidden-homepage-featured-items';
+  collection: string;
+  sortKey?: string;
+  reverse?: boolean;
 }): Promise<Product[]> {
-  const params = {
-    'hidden-homepage-carousel': { sortKey: 'created_at' },
-    'hidden-homepage-featured-items': { sortKey: 'rating' }
-  }[collection];
 
-  return getProducts(params);
+  return getProducts(
+    {
+      collection,
+      sortKey: 'price',
+    }
+  );
 }
 
 export async function getProduct(handle: string): Promise<Product | undefined> {

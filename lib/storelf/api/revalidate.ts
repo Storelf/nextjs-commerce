@@ -2,7 +2,7 @@ import { TAGS } from 'lib/storelf/constants';
 import { revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function revalidateAll(req: NextRequest): Promise<NextResponse> {
+export async function revalidate(req: NextRequest): Promise<NextResponse> {
   revalidateTag(TAGS.collections);
   revalidateTag(TAGS.products);
 

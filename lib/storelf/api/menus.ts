@@ -1,6 +1,6 @@
 import { TAGS } from '../constants';
 import { storelfFetch } from '../core';
-import { Menu, Page } from '../types';
+import { Menu } from '../types';
 
 export async function getMenu(handle: string): Promise<Menu[]> {
   if (handle === 'next-js-frontend-header-menu') {
